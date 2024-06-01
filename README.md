@@ -11,5 +11,5 @@ GET /get/{id}
 
 Get lyrics with a track's signature: 
 GET /get/{artist_name}/{track_name}/{album_name}/{duration}
-(not working 5/31)
+(working)
 

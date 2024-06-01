@@ -51,8 +51,8 @@ async def get_info(id: int, db: asyncpg.Connection = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Track not found")
     return dict(row)
 
-@app.get("/get/{artist_name}/{name}/{album_name}/{duration}",response_model = dict)
-async def read_track(artist_name: str, name: str, album_name: str, duration: int, db: asyncpg.Connection = Depends(get_db)):
+@app.get("/get/{artist_name}/{track_name}/{album_name}/{duration}",response_model = dict)
+async def read_track(artist_name: str, track_name: str, album_name: str, duration: int, db: asyncpg.Connection = Depends(get_db)):
     query = """
     SELECT 
         t.id, 
@@ -67,11 +67,11 @@ async def read_track(artist_name: str, name: str, album_name: str, duration: int
     JOIN lyrics l on t.id = l.id
     WHERE 
         artist_name =  $1 AND 
-        album_name = $2 AND 
-        name = $3 AND 
+        name = $2 AND  
+        album_name = $3 AND 
         duration = $4
     """
-    row = await db.fetchrow(query, artist_name, name, album_name, duration)
+    row = await db.fetchrow(query, artist_name, track_name, album_name, duration)
     if not row:
         raise HTTPException(status_code=404, detail="Track or Artist not found")
     return dict(row)
