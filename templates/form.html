@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track Information</title>
+</head>
+<body>
+    <h1>Track Information Form</h1>
+    <form action="/get_info" method="get">
+        <label for="id">Track ID:</label><br>
+        <input type="number" id="id" name="id"><br>
+        <input type="submit" value="Get Track Info">
+    </form>
+    <form action="/get_track" method="get">
+        <label for="artist_name">Artist Name:</label><br>
+        <input type="text" id="artist_name" name="artist_name"><br>
+        <label for="track_name">Track Name:</label><br>
+        <input type="text" id="track_name" name="track_name"><br>
+        <label for="album_name">Album Name:</label><br>
+        <input type="text" id="album_name" name="album_name"><br>
+        <label for="duration">Duration (seconds):</label><br>
+        <input type="number" id="duration" name="duration"><br>
+        <input type="submit" value="Get Track Info">
+    </form>
+
+    {% if result %}
+    <h2>Track Information:</h2>
+    <ul>
+        <li>ID: {{ row.id }}</li>
+        <li>Artist Name: {{ row.artist_name }}</li>
+        <li>Track Name: {{ row.track_name }}</li>
+        <li>Album Name: {{ row.album_name }}</li>
+        <li>Duration: {{ row.duration }}</li>
+        <li>Instrumental: {{ row.instrumental }}</li>
+        <li>Plain Lyrics: {{ row.plain_lyrics }}</li>
+        <li>Synced Lyrics: {{ row.synced_lyrics }}</li>
+    </ul>
+    {% endif %}
+</body>
+</html>
