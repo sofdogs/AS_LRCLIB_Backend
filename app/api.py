@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Query
 import asyncpg
-from typing import List
+from typing import List, Optional, Annotated
 import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,6 +29,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+# preprocessing the string by striping
+# whitespace and converting to lowercase
+def prepare_str(s: str): 
+    return s.strip().lower()
+
+# preprocessing the optional strings 
+def prepare_optional_string(s: Optional[str]) -> Optional[str]:
+    if s is None: 
+        return None
+    processed_val = prepare_str(s)
+    if not processed_val: 
+        return None
+    return processed_val
 
 # Dependency
 async def get_db():
@@ -67,7 +81,7 @@ async def get_info(id: int, db: asyncpg.Connection = Depends(get_db)):
         l.plain_lyrics, 
         l.synced_lyrics
     FROM tracks t
-    JOIN lyrics l on t.id = l.id
+    JOIN lyrics l on t.last_lyrics_id= l.id
     WHERE t.id = $1
     """
     row = await db.fetchrow(query, id)
@@ -93,14 +107,72 @@ async def read_track(artist_name: str, track_name: str, album_name: str, duratio
         l.plain_lyrics, 
         l.synced_lyrics
     FROM tracks t
-    JOIN lyrics l on t.id = l.id
+    JOIN lyrics l on t.last_lyrics_id = l.id
     WHERE 
         artist_name_lower =  $1 AND 
         name_lower = $2 AND  
         album_name_lower = $3 AND 
         duration = $4
+    ORDER BY
+        tracks.id
     """
     row = await db.fetchrow(query, artist_name, track_name, album_name, duration)
     if not row:
         raise HTTPException(status_code=404, detail="Track or Artist not found")
     return dict(row)
+
+# keyword is of type Union[str, None] --> optional 
+# Annotated [] -> Additional validation so length doesnt exceed 40 characters 
+@app.get("/search", response_model=dict)
+async def search_tracks(
+    keyword: Annotated[str | None, Query(min_length = 1, max_length=40)] = None, # {track title, album name, or artist name}
+    track_name: Annotated[str | None, Query(min_length = 1, max_length=40)] = None,
+    artist_name: Annotated[str | None, Query(min_length = 1, max_length=40)] = None,
+    album_name: Annotated[str | None, Query(min_length = 1, max_length=40)] = None,
+    db: asyncpg.Connection = Depends(get_db)
+):
+
+    # pre-process each input param 
+    keyword = prepare_optional_string(keyword)
+    track_name = prepare_optional_string(track_name)
+    artist_name = prepare_optional_string(artist_name)
+    album_name = prepare_optional_string(album_name)
+
+    # check that keyword or track_name is present 
+    if not keyword and not track_name:
+        raise HTTPException(status_code=400, detail="At least one of 'keyword' or 'track_name' must be present")
+    
+
+    # query declaration 
+    query = """
+    SELECT
+      tracks.id,
+      tracks.name,
+      tracks.artist_name,
+      tracks.album_name,
+      tracks.duration,
+      lyrics.instrumental,
+      lyrics.plain_lyrics,
+      lyrics.synced_lyrics
+    FROM
+      tracks
+      LEFT JOIN lyrics ON tracks.last_lyrics_id = lyrics.id
+    WHERE
+      tracks.id IN (
+        SELECT
+          rowid
+        FROM
+          tracks_fts
+        WHERE
+          tracks_fts MATCH ?
+      )
+    LIMIT 20
+    """
+    # execute query 
+    row = await db.fetchrow(query, keyword, track_name, artist_name, album_name)
+    if not row:
+        raise HTTPException(status_code=404, detail="Track or Artist not found")
+    return dict(row)
+
+    conditions = []
+    values = []
