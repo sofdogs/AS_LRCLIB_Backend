@@ -23,7 +23,8 @@ origins = [
     "http://localhost:3000",
     "localhost:3000",
     "http://192.168.86.157:3000",
-    "http://192.168.1.237:3000"
+    "http://192.168.1.237:3000",
+    "http://192.168.86.44:3000"
 ]
 
 # enable CORS
@@ -72,6 +73,7 @@ async def get_tracks_by_keyword(
     conn: asyncpg.Connection
 ) -> List[SimpleTrack]:
 
+    # preprocessing input...
     q = prepare_input(q) if q else None
     track_name = prepare_input(track_name) if track_name else None
     artist_name = prepare_input(artist_name) if artist_name else None
@@ -85,6 +87,8 @@ async def get_tracks_by_keyword(
         fts_query = ' & '.join(q.split())
     else:
         fts_query = ' & '.join(filter(None, [track_name, artist_name, album_name]))
+
+    
     query = """
     SELECT
       tracks.id,
@@ -117,8 +121,8 @@ async def get_tracks_by_keyword(
         tracks = []
         for row in rows:
             last_lyrics = SimpleLyrics(
-                plain_lyrics=row['plain_lyrics'] or "",  # Provide default empty string if None
-                synced_lyrics=row['synced_lyrics'] or "",  # Provide default empty string if None
+                plain_lyrics=row['plain_lyrics'] or "",  # empty string is instrumental is TRUE
+                synced_lyrics=row['synced_lyrics'] or "",  # empty string is instrumental is TRUE
                 instrumental=row['instrumental'] if row['instrumental'] is not None else False
             )
             track = SimpleTrack(

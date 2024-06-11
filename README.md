@@ -24,6 +24,7 @@ Search Track's Signatures by Keywords:
 * GET /tracks searches for tracks based on query parameters: 'q', 'track_name', 'artist_name', and 'album_name'.
 * Parameters 'q' OR 'track_name' must be present.
 * Returns a list of maximum 20 'SimpleTrack' objects or raises an error if query fails.
+* Uses Postgres FTS method.
 
 Tracks signature include the following information: id, track name, artist name, album name, duration, instrumental, plain lyrics, and synced lyrics. 
 
