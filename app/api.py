@@ -202,7 +202,7 @@ async def read_track(artist_name: str, track_name: str, album_name: str, duratio
         artist_name_lower =  $1 AND 
         name_lower = $2 AND  
         album_name_lower = $3 AND 
-        duration = $4
+        duration BETWEEN $4-2 AND $4+2
     ORDER BY
         t.id
     """
