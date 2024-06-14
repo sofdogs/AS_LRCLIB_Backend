@@ -38,6 +38,7 @@ Tracks signature include the following information: id, track name, artist name,
 * get_tracks_by_keyword : Searches for tracks in the database using full-text search on the provided keywords. If neither keyword or track name is provided, it returns an empty list. 
 
 ** Args: 
+
 *** q (Optional[str]): Keyword to search across all fields.
 *** track_name (Optional[str]): Specific track name to search for.
 *** artist_name (Optional[str]): Specific artist name to search for.
@@ -45,6 +46,7 @@ Tracks signature include the following information: id, track name, artist name,
 *** conn (asyncpg.Connection): The database connection.
 
 ** Returns: 
+
 *** List[SimpleTrack]: A list of tracks that match the search criteria.
 
 * get_info : Retrives track information by track ID. 
@@ -60,6 +62,7 @@ Tracks signature include the following information: id, track name, artist name,
 * read_track: retrieves the track info by artist name, track name, album name, and duration. 
 
 ** Args: 
+
 *** artist_name (str): the artist's name. 
 *** track_name (str): the track's name. 
 *** album_name (str): the album's name. 
@@ -67,6 +70,7 @@ Tracks signature include the following information: id, track name, artist name,
 *** db (asyncpg.Connection): the db connection dependency. 
 
 ** Returns: 
+
 *** dict: the track information. 
 
 * search_tracks : Searches for tracks using optimal query parameters. 
