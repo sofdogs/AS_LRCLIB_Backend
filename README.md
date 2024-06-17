@@ -43,8 +43,8 @@ Tracks signature include the following information: id, track name, artist name,
     * album_name (Optional[str]): Specific album name to search for.
     * conn (asyncpg.Connection): The database connection.
 
- * Returns: 
-   * List[SimpleTrack]: A list of tracks that match the search criteria.
+   * Returns: 
+     * List[SimpleTrack]: A list of tracks that match the search criteria.
 
 * get_info : Retrives track information by track ID. 
   * Args: 
