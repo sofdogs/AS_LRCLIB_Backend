@@ -58,7 +58,6 @@ Tracks signature include the following information: id, track name, artist name,
 
 
 * read_track: retrieves the track info by artist name, track name, album name, and duration. 
-
   * Args: 
     * artist_name (str): the artist's name. 
     * track_name (str): the track's name. 
@@ -71,35 +70,35 @@ Tracks signature include the following information: id, track name, artist name,
 
 * search_tracks : Searches for tracks using optimal query parameters. 
   * Args: 
-   * q (Optional[str]): Keyword to search across all fields.
-   * track_name (Optional[str]): Specific track name to search for.
-   * artist_name (Optional[str]): Specific artist name to search for.
-   * album_name (Optional[str]): Specific album name to search for.
+    * q (Optional[str]): Keyword to search across all fields.
+    * track_name (Optional[str]): Specific track name to search for.
+    * artist_name (Optional[str]): Specific artist name to search for.
+    * album_name (Optional[str]): Specific album name to search for.
 
- * Returns: 
-  * List[SimpleTrack]: A list of tracks that match the search criteria.
+  * Returns: 
+    * List[SimpleTrack]: A list of tracks that match the search criteria.
 
 ## database.py 
 * connect_to_db(): establishes an asycn connection to the PostgreSQL DB/ 
- * This function uses the URL provided in the env and returns a connection object used to execute the queries. 
- * Rasies a asyncpg.PostgresError if theres an error connecting to the db.
+  * This function uses the URL provided in the env and returns a connection object used to execute the queries. 
+  * Rasies a asyncpg.PostgresError if theres an error connecting to the db.
 
 * disconnect_from_db(): closes the async connection to the db. 
- * Args: conn - the db connection 
+  * Args: conn - the db connection 
 
 
 ## models.py 
 * SimpleLyrics(BaseModel) : Represents the lyrics informaton for the track 
-** Attributes: 
-*** plain_lyrics (Optional[str]): The plain text lyrics of the track. This field is optional and may be `None`.
-*** synced_lyrics (Optional[str]): The synchronized lyrics of the track, often used for displaying lyrics in time with the music.This field is optional and may be `None`.
-***instrumental (bool): A flag indicating whether the track is instrumental. Defaults to `False`.
+  * Attributes: 
+    * plain_lyrics (Optional[str]): The plain text lyrics of the track. This field is optional and may be `None`.
+    * synced_lyrics (Optional[str]): The synchronized lyrics of the track, often used for displaying lyrics in time with the music.This field is optional and may be `None`.
+    * instrumental (bool): A flag indicating whether the track is instrumental. Defaults to `False`.
 
-* SimpleTrack(BaseModel): Represents basic info about the track. 
-** Attributes:
-*** id (int): The unique identifier for the track.
-*** name (str): The name of the track.
-*** artist_name (str): The name of the artist who performed the track.
-*** lbum_name (str): The name of the album the track is part of.
-*** duration (int): The duration of the track in seconds.
-*** last_lyrics (Optional[SimpleLyrics]): The lyrics information for the track. This field is optional and may be `None`.
+* SimpleTrack(BaseModel): Represents basic info about the track.
+  * Attributes:
+    * id (int): The unique identifier for the track.
+    * name (str): The name of the track.
+    * artist_name (str): The name of the artist who performed the track.
+    * album_name (str): The name of the album the track is part of.
+    * duration (int): The duration of the track in seconds.
+    * last_lyrics (Optional[SimpleLyrics]): The lyrics information for the track. This field is optional and may be `None`.
