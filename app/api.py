@@ -1,3 +1,4 @@
+from importlib.machinery import all_suffixes
 from fastapi import FastAPI, HTTPException, Depends, Query
 import asyncpg
 import re
@@ -8,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .database import connect_to_db, disconnect_from_db
 from .models import SimpleTrack, SimpleLyrics
 from psycopg2.extras import RealDictCursor
+import requests # for communication with Apple
 
 # load the .env file
 load_dotenv()
@@ -228,3 +230,56 @@ async def search_tracks(
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         await disconnect_from_db(conn)
+
+
+# api call to iTunes api store for album cover
+@app.get("/album-cover")
+async def get_album_cover (artist_name: str, album_name: str): 
+    try: 
+        # iTunes API Request Body 
+        url = "https://itunes.apple.com/search" # base URL
+        params = {
+            "term": f"{artist_name} {album_name}",
+            "entity": "album",
+            "limit": 1
+        }
+        # GET request to Search API
+        response = requests.get(url,params=params) 
+
+        # parsing JSOn response 
+        data = response.json() 
+
+        if data['resultCount'] == 0:
+            raise HTTPException(status_code=404, detail="Album or Album Cover not found")
+
+        album_cover_url = data['results'][0]['artworkUrl100']
+
+        # getting desired img size 600x600
+        
+        #album_cover_url_600 = album_cover_url.replace("100x100bb.jpg", "600x600bb.jpg")
+        return {"album_cover_url_100": album_cover_url}
+
+        if False:
+            # check if 600x600 exists 
+            album_response_600 = requests.get(album_cover_url_600)
+            if album_response_600.status_code == 200: 
+                # if it does, return
+                return {"album_cover_url_600": album_cover_url_600}
+            else: 
+                # otherwise, get the 500x500
+                album_cover_url_500 = album_cover_url.replace("100x100bb.jpg", "500x500bb.jpg")
+                #return {"album_cover_url_500": album_cover_url_500}
+
+            # if 500x500 exists...
+            album_response_500 = requests.get(album_cover_url_500)
+            if album_response_500.status_code == 200: 
+                return {"album_cover_url_500": album_cover_url_500}
+            else: 
+                # otherwise return 100x100
+                return {"album_cover_url_100": album_cover_url}
+        
+    
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) 
+
